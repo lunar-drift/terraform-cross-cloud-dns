@@ -19,11 +19,12 @@ locals {
   ])
   txt_map = { for r in local.txt_logical : r.key => r }
   txt_map_aws = {
+    # AWS Route 53 accepts multiple values per subdomain within one record resource.
     for name, recs in { for r in local.txt_logical : r.name => r... } :
     name => {
       name   = name
       values = [for rec in recs : rec.value]
-      ttl    = recs[0].ttl # same name => same TTL by construction
+      ttl    = recs[0].ttl
     }
   }
 }
