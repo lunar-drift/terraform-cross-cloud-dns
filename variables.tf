@@ -34,12 +34,15 @@ variable "cname_records" {
 }
 
 variable "txt_records" {
-  type        = map(string)
+  type        = map(list(string))
   description = "Define TXT records..."
   default     = {}
   # Example:
   # txt_records = {
-  #   "@"      = "v=spf1 include:_spf.google.com ~all"
+  #   "@" = [
+  #     "v=spf1 include:_spf.google.com ~all",
+  #     "google-site-verification=abc123",
+  #   ]
   # }
 }
 
