@@ -13,24 +13,17 @@ variable "dns_providers" {
 }
 
 variable "a_records" {
-  type        = map(string)
-  description = "Define standard A records..."
+  type        = map(list(string))
+  description = "A records: name -> list of IPv4 addresses (multiple = round-robin). '@' for apex."
   default     = {}
-  # Example:
-  # a_records = {
-  #   "@"    = "192.0.2.1"
-  #   "www"  = "192.0.2.2"
-  #   "blog" = "192.0.2.3"
-  # }
+  # a_records = { "@" = ["203.0.113.10"], "www" = ["203.0.113.10", "203.0.113.11"] }
 }
+
 variable "cname_records" {
-  type        = map(string)
-  description = "Define standard CNAME records..."
-  default     = {}
-  # Example:
-  # cname_records = {
-  #   "www" = "xyz.cloudfront.amazon.com"
-  # }
+  type = map(string)
+  description = "CNAME records: name -> target. '@' is not permitted (DNS forbids CNAME at apex)."
+  default = {}
+  # cname_records = { "www" = "example.com", "blog" = "cname.vercel-dns.com" }
 }
 
 variable "txt_records" {
@@ -62,14 +55,14 @@ variable "mx_records" {
 variable "domain_name" {
   type        = string
   description = "The primary domain name (e.g., example.com)"
-  default     = "example.com"
+  default     = ""
 }
 
-variable "dnsimple_account_id" {
-  type        = string
-  description = "Your DNSimple Account ID"
-  default     = "12345"
+variable "per_subdomain_ttl" {
+  type    = map(number)
+  default = {}
 }
-
-variable "per_subdomain_ttl" {}
-
+variable "default_ttl" {
+  type    = number
+  default = 3600
+}
