@@ -24,9 +24,17 @@ provider "aws" {
   }
 }
 
-# provider "dnsimple" {
-#   token    = "${var.dnsimple_token}"
-#   account  = "${var.dnsimple_account}"
-#   sandbox  = true
-#   prefetch = false
-# }
+variable "dnsimple_token" {
+  type = string
+}
+
+variable "dnsimple_account_id" {
+  type = string
+}
+
+provider "dnsimple" {
+  token    = var.dnsimple_token
+  account  = var.dnsimple_account_id
+  sandbox  = true
+  prefetch = false
+}
