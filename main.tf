@@ -7,17 +7,7 @@ resource "aws_route53_zone" "main" {
   name  = var.domain_name
 }
 
-# resource "aws_route53_record" "txt" {
-#   for_each = local.deploy_aws ? var.txt_records : {}
-#
-#   zone_id = aws_route53_zone.main[0].zone_id
-#   name    = each.key == "@" ? var.domain_name : "${each.key}.${var.domain_name}"
-#   type    = "TXT"
-#   ttl     = var.per_subdomain_ttl[each.key]
-#   records = [each.value]
-# }
-# AWS: one record per logical TXT value (Route53 allows multiple records
-# with the same name/type — they coexist in the hosted zone)
+
 resource "aws_route53_record" "txt" {
   for_each = local.deploy_aws ? local.txt_map_aws : {}
 
