@@ -126,7 +126,6 @@ resource "aws_route53_record" "mx" {
 # resource "dnsimple_zone_record" "a" {
 #   for_each = local.deploy_dnsimple ? var.a_records : {}
 #
-#   account_id = var.dnsimple_account_id
 #   zone_name  = var.domain_name
 #   type       = "A"
 #   name       = each.key == "@" ? "" : each.key
@@ -137,7 +136,6 @@ resource "aws_route53_record" "mx" {
 # resource "dnsimple_zone_record" "cname" {
 #   for_each = local.deploy_dnsimple ? var.cname_records : {}
 #
-#   account_id = var.dnsimple_account_id
 #   zone_name  = var.domain_name
 #   type       = "CNAME"
 #   name       = each.key
@@ -148,7 +146,6 @@ resource "aws_route53_record" "mx" {
 # resource "dnsimple_zone_record" "txt" {
 #   for_each = local.deploy_dnsimple ? var.txt_records : {}
 #
-#   account_id = var.dnsimple_account_id
 #   zone_name  = var.domain_name
 #   type       = "TXT"
 #   name       = each.key == "@" ? "" : each.key
@@ -159,7 +156,6 @@ resource "aws_route53_record" "mx" {
 # resource "dnsimple_zone_record" "mx" {
 #   for_each = local.deploy_dnsimple ? { for idx, record in local.mx_flattened : "${record.key}_${idx}" => record } : {}
 #
-#   account_id = var.dnsimple_account_id
 #   zone_name  = var.domain_name
 #   type       = "MX"
 #   name       = each.value.key == "@" ? "" : each.value.key
