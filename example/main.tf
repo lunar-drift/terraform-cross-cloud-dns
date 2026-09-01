@@ -18,14 +18,7 @@ module "x_dns" { # ld_dns
   }
 }
 
-locals {
-  proton_pass_mx_records = {
-    type    = "MX"
-    name    = "webdatabasesolutions.com"
-    records = [
-      "10 mx1.alias.proton.me",
-      "20 mx2.alias.proton.me"
-    ]
-    ttl = 86400
-  }
+
+output "all_records" {
+  value = module.x_dns.dns_records
 }
