@@ -1,4 +1,4 @@
-module "x_dns" {
+module "x_dns" { # ld_dns
   source = "../"
   domain_name = "webdatabasesolutions.com"
   dns_providers = ["aws", "dnsimple"]
@@ -12,9 +12,9 @@ module "x_dns" {
     "_dmarc" = ["v=DMARC1; p=quarantine; pct=100; adkim=s; aspf=s"]
   }
   cname_records = {
-    "dkim._domainkey" = ["dkim._domainkey.alias.proton.me"]
-    "dkim02._domainkey" = ["dkim02._domainkey.alias.proton.me"]
-    "dkim03._domainkey" = ["dkim03._domainkey.alias.proton.me"]
+    "dkim._domainkey" = "dkim._domainkey.alias.proton.me"
+    "dkim02._domainkey" = "dkim02._domainkey.alias.proton.me"
+    "dkim03._domainkey" = "dkim03._domainkey.alias.proton.me"
   }
 }
 
