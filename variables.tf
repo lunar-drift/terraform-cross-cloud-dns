@@ -20,9 +20,14 @@ variable "a_records" {
 }
 
 variable "cname_records" {
-  type = map(string)
-  description = "CNAME records: name -> target. '@' is not permitted (DNS forbids CNAME at apex)."
-  default = {}
+  type        = map(string)
+  description = "CNAME records: name -> target."
+  default     = {}
+
+  validation {
+    condition     = !contains([for k, v in var.cname_records : k], "@")
+    error_message = "CNAME records cannot exist at the zone apex (@) — use A/ALIAS records there."
+  }
   # cname_records = { "www" = "example.com", "blog" = "cname.vercel-dns.com" }
 }
 

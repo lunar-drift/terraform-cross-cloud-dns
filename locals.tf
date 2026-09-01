@@ -27,4 +27,36 @@ locals {
       ttl    = recs[0].ttl
     }
   }
+  # ---- A records: identical machinery to TXT ----
+  a_logical = flatten([
+    for name, ips in var.a_records : [
+      for ip in ips : {
+        key   = "${name}_${md5(ip)}"
+        name  = name
+        value = ip
+        ttl   = lookup(var.per_subdomain_ttl, name, var.default_ttl)
+      }
+    ]
+  ])
+  a_map = { for r in local.a_logical : r.key => r }
+  a_map_aws = {
+    # AWS Route 53 accepts multiple values per subdomain within one record resource.
+    for name, recs in { for r in local.a_logical : r.name => r... } :
+    name => {
+      name   = name
+      values = [for rec in recs : rec.value]
+      ttl    = recs[0].ttl
+    }
+  }
+  # ---- CNAMEs: single-valued, so no flatten — the input IS the logical map ----
+  cname_map = {
+    for name, target in var.cname_records :
+    name => {
+      name   = name
+      target = strcontains(target, ".") ? target : "${target}.${var.domain_name}" # allows for shorthand for referencing local domain name.
+      ttl    = lookup(var.per_subdomain_ttl, name, var.default_ttl)
+    }
+  }
+
+
 }
