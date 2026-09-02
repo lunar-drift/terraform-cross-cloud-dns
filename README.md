@@ -59,12 +59,13 @@ terraform import 'module.x_dns.dnsimple_zone_record.txt["@_hash"]' 12345678
 - No CNAME records allowed at apex, e.g. example.com, this would require an alias record at a supported provider. (AWS, DNSimple)
 
 ## Provider variations
-| Concern                | AWS Route53                              | DNSimple               | DigitalOcean           | This Module                 |
-|------------------------|------------------------------------------|------------------------|------------------------|-----------------------------|
-| Apex (`@`) as name     | full zone FQDN                           | empty string `""`      | literal `"@"`          | Only Accepts `@`            |
-| CNAME target format    | FQDN required                            | lenient                | lenient                | FQDN Required               |
-| Multi-value at name    | one record set, `values` list            | one resource per value | one resource per value | Multi-Value per name in var |
-| Record-set cardinality | max 1 per (name, type), simple routing   | many per name          | many per name          | Multi-Value per name in var |
+| Concern                | AWS Route53                            | DNSimple               | DigitalOcean           | This Module                 |
+|------------------------|----------------------------------------|------------------------|------------------------|-----------------------------|
+| Apex (`@`) as name     | full zone FQDN                         | empty string `""`      | literal `"@"`          | Only Accepts `@`            |
+| CNAME target format    | FQDN required                          | lenient                | lenient                | FQDN Required               |
+| Multi-value at name    | one record set, `values` list          | one resource per value | one resource per value | Multi-Value per name in var |
+| Record-set cardinality | max 1 per (name, type), simple routing | many per name          | many per name          | Multi-Value per name in var |
+| Target Format          | No trailing `.`                        | No trailing `.`        | Trailing `.` required  | No trailing `.` in var      |
 
 Adding a new provider = one `required_providers` entry + renderer blocks per record
 type. The logical layer (`*_logical`, `*_map`) is shared and provider-agnostic. More providers will be supported if demand appears.

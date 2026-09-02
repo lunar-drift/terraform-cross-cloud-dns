@@ -108,7 +108,7 @@ resource "digitalocean_record" "mx" {
   type     = "MX"
   name     = each.value.name
   priority = each.value.priority
-  value    = each.value.target # FQDN required here, even though this API is lenient.
+  value    = "${each.value.target}." # FQDN with trailing dot
   ttl      = each.value.ttl
 }
 
@@ -118,7 +118,7 @@ resource "dnsimple_zone_record" "mx" {
   zone_name = local.dnsimple_zone_name
   type      = "MX"
   name      = each.value.name == "@" ? "" : each.value.name
-  value     = each.value.target # FQDN required here, even though DNSimple API is lenient.
+  value     = each.value.target # FQDN required here, even though DNSimple API is lenient with local domain shorthand.
   priority  = each.value.priority
   ttl       = each.value.ttl
 }
