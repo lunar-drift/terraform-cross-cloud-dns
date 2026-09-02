@@ -5,10 +5,10 @@ module "ld_dns" {
   domain_name   = var.domain_name
   dns_providers = ["aws", "dnsimple", "digitalocean"]
 
-  create_aws_route53_zone = true
+  create_aws_route53_zone    = true
   create_digitalocean_domain = true
 
-  default_ttl   = 60
+  default_ttl = 60
 
   txt_records = {
     "@" = [
@@ -18,8 +18,8 @@ module "ld_dns" {
     "_dmarc" = ["v=DMARC1; p=quarantine; pct=100; adkim=s; aspf=s"]
   }
   cname_records = {
-    "docs"    = "docs.external-provider.com"
-    "status"  = "status-page.example-hosted.io"
+    "docs"   = "docs.external-provider.com"
+    "status" = "status-page.example-hosted.io"
   }
 
   mx_records = {
@@ -29,7 +29,7 @@ module "ld_dns" {
     ]
   }
   a_records = {
-    "@" = ["203.0.113.10"]
+    "@"   = ["203.0.113.10"]
     "www" = ["203.0.113.20", "203.0.113.21"]
   }
 }

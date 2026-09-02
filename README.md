@@ -1,5 +1,15 @@
 # terraform-cross-cloud-dns
 
+## Running the example
+Fill in example/terraform.tfvars (copy terraform.tfvars.example):
+- domain_name      — a zone that exists in your DNSimple account (module never creates zones there)
+- dnsimple_token   / dnsimple_account_id — DNSimple API access
+- do_token         — DigitalOcean API token
+- aws_assume_role_arn — role for the AWS provider
+
+Not testing a provider? Remove it from dns_providers var and from your tfvars and let it default to `""`
+
+
 ## Managed DNS Records: Resource Record Set Model vs Individual Resource Record Model 
 For example, two different TXT records at the apex, `@` for two different domain validations are needed. 
 In the RR model, two resource blocks are needed, while in the RR Set model, only one resource is required.
@@ -8,6 +18,7 @@ If more than two records at the same subdomain or at the apex are needed, that m
 in the RR model, but only one is needed in the RR set model. 
 - RR model: DNSimple, Digital Ocean 
 - RR set model: AWS Route 53
+- 
 ### Implementation of this difference in providers within this module
 - The key in RR set modeled providers are simply `name` with name being `"@"` in the case of the apex or `"www"` or other subdomain.
 - Every record in the RR model gets a composite key: `${name}_${md5(value)}`
@@ -34,20 +45,12 @@ terraform state show 'module.ld_dns.dnsimple_zone_record.txt["@_hash"]'
 terraform state rm 'module.ld_dns.aws_route53_record.txt["@"]'
 
 # Force recreation on next apply
-terraform taint 'module.ld_dns.dnsimple_zone_record.txt["www_1a6bc0f15e737f222885bdab7c3a3cda"]'
+terraform taint 'module.ld_dns.dnsimple_zone_record.txt["www_hash"]'
 
 # Target a specific record for planning
 terraform plan -target='module.ld_dns.aws_route53_record.txt["@"]'
 
 # Import an existing DNS record (dnsimple record ID / Route53 record set spec)
-terraform import 'module.ld_dns.dnsimple_zone_record.txt["@_hash"]' 12345678
-```
-### bash
-```shell
-terraform state show 'module.ld_dns.dnsimple_zone_record.txt["@_hash"]'
-terraform state rm 'module.ld_dns.aws_route53_record.txt["@"]'
-terraform taint 'module.ld_dns.dnsimple_zone_record.txt["@_hash"]'
-terraform plan -target='module.ld_dns.aws_route53_record.txt["@"]'
 terraform import 'module.ld_dns.dnsimple_zone_record.txt["@_hash"]' 12345678
 ```
 

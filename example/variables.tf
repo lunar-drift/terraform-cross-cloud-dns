@@ -1,10 +1,26 @@
 # --- terraform-cross-cloud-dns/example/variables.tf ---
 
 # == Provider Variables ==
-variable "aws_assume_role_arn" { type = string }
-variable "dnsimple_token" { type = string }
-variable "dnsimple_account_id" { type = string }
-variable "do_token" { type = string }
+variable "aws_assume_role_arn" {
+  type      = string
+  sensitive = true
+  default   = ""
+}
+variable "dnsimple_token" {
+  type      = string
+  sensitive = true
+  default   = ""
+}
+variable "dnsimple_account_id" {
+  type      = string
+  sensitive = true
+  default   = ""
+}
+variable "do_token" {
+  type      = string
+  sensitive = true
+  default   = ""
+}
 
 # == CONFIGURATION VARIABLES ==
 variable "domain_name" {
