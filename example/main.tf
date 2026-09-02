@@ -1,4 +1,4 @@
-module "x_dns" { # ld_dns
+module "ld_dns" {
   source = "../"
   domain_name = "webdatabasesolutions.com"
   dns_providers = ["aws", "dnsimple"]
@@ -27,5 +27,18 @@ module "x_dns" { # ld_dns
 
 
 output "all_records" {
-  value = module.x_dns.dns_records
+  value = module.ld_dns.dns_records
+}
+
+output "mx1" {
+  value = module.ld_dns._mx_var
+}
+output "mx2" {
+  value = module.ld_dns._mx_logical
+}
+output "mx3" {
+  value = module.ld_dns._mx_map
+}
+output "mx4" {
+  value = module.ld_dns._mx_map_aws
 }
