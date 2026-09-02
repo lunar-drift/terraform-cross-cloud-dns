@@ -93,7 +93,8 @@ resource "dnsimple_zone_record" "mx" {
   zone_name = var.domain_name
   type      = "MX"
   name      = each.value.name == "@" ? "" : each.value.name
-  value     = "${each.value.priority} ${each.value.target}"
+  value     = each.value.target
+  priority  = each.value.priority
   ttl       = each.value.ttl
 }
 
