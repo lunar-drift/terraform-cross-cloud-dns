@@ -11,13 +11,6 @@ resource "aws_route53_zone" "main" {
 data "aws_route53_zone" "existing" {
   count = local.deploy_aws && !var.create_aws_route53_zone ? 1 : 0
   name  = var.domain_name
-  lifecycle {
-    # There has been some documented inconsistencies in finding matches with hosted zones
-    postcondition {
-      condition     = self.name == "${var.domain_name}."
-      error_message = "Route53 zone '${var.domain_name}' was not found exactly. Set create_aws_route53_zone = true if the zone should be created, or verify the domain_name value."
-    }
-  }
 }
 
 resource "digitalocean_domain" "main" {
