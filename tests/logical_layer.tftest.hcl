@@ -13,7 +13,7 @@ mock_provider "digitalocean" {}
 # ==========================================================================
 
 variables {
-  domain_name       = "test.com"
+  domain_name       = "example.com"
   default_ttl       = 3600
   per_subdomain_ttl = { "www" = 300 }
 

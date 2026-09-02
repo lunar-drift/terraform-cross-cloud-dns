@@ -1,0 +1,5 @@
+# the zone must exist in your DNSimple account (module never creates zones there
+dnsimple_token      = "dnsimple..."
+dnsimple_account_id = 0000
+do_token = "dop_..."
+aws_assume_role_arn = "arn:aws:iam::{AccountID}:role/{RoleName}"
