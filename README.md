@@ -28,27 +28,27 @@ in the RR model, but only one is needed in the RR set model.
 ### PowerShell
 ```shell
 # View a record's details
-terraform state show 'module.x_dns.dnsimple_zone_record.txt["@_hash"]'
+terraform state show 'module.ld_dns.dnsimple_zone_record.txt["@_hash"]'
 
 # Remove from state (untracks — resource stays in the cloud)
-terraform state rm 'module.x_dns.aws_route53_record.txt["@"]'
+terraform state rm 'module.ld_dns.aws_route53_record.txt["@"]'
 
 # Force recreation on next apply
-terraform taint 'module.x_dns.dnsimple_zone_record.txt["www_1a6bc0f15e737f222885bdab7c3a3cda"]'
+terraform taint 'module.ld_dns.dnsimple_zone_record.txt["www_1a6bc0f15e737f222885bdab7c3a3cda"]'
 
 # Target a specific record for planning
-terraform plan -target='module.x_dns.aws_route53_record.txt["@"]'
+terraform plan -target='module.ld_dns.aws_route53_record.txt["@"]'
 
 # Import an existing DNS record (dnsimple record ID / Route53 record set spec)
-terraform import 'module.x_dns.dnsimple_zone_record.txt["@_hash"]' 12345678
+terraform import 'module.ld_dns.dnsimple_zone_record.txt["@_hash"]' 12345678
 ```
 ### bash
 ```shell
-terraform state show 'module.x_dns.dnsimple_zone_record.txt["@_hash"]'
-terraform state rm 'module.x_dns.aws_route53_record.txt["@"]'
-terraform taint 'module.x_dns.dnsimple_zone_record.txt["@_hash"]'
-terraform plan -target='module.x_dns.aws_route53_record.txt["@"]'
-terraform import 'module.x_dns.dnsimple_zone_record.txt["@_hash"]' 12345678
+terraform state show 'module.ld_dns.dnsimple_zone_record.txt["@_hash"]'
+terraform state rm 'module.ld_dns.aws_route53_record.txt["@"]'
+terraform taint 'module.ld_dns.dnsimple_zone_record.txt["@_hash"]'
+terraform plan -target='module.ld_dns.aws_route53_record.txt["@"]'
+terraform import 'module.ld_dns.dnsimple_zone_record.txt["@_hash"]' 12345678
 ```
 
 ## Supported Record Types
