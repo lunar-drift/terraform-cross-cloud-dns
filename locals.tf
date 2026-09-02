@@ -6,6 +6,10 @@ locals {
   deploy_digitalocean = contains(var.dns_providers, "digitalocean")
   deploy_dnsimple     = contains(var.dns_providers, "dnsimple")
 
+  aws_zone_id         = var.create_aws_route53_zone ? one(aws_route53_zone.main[*].zone_id) : var.aws_route53_zone_id
+  dnsimple_zone_name  = var.create_dnsimple_domain ? one(dnsimple_domain.main[*].name) : var.domain_name
+  digitalocean_domain = var.create_digitalocean_domain ? one(digitalocean_domain.main[*].name) : var.domain_name
+
   # -- A records --
   a_logical = flatten([
     for name, ips in var.a_records : [

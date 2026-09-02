@@ -77,3 +77,20 @@ variable "create_dnsimple_domain" {
   type = bool
   default = false
 }
+
+variable "aws_route53_zone_id" {
+  type    = string
+  default = ""
+  validation {
+    condition     = var.aws_route53_zone_id == "" || can(regex("^Z[0-9A-Z]{15,}$", var.aws_route53_zone_id))
+    error_message = "aws_route53_zone_id must be either empty (lookup/data source path) or a Route53 zone ID like Z1D633PJN98FT9."
+  }
+  validation {
+    condition     = !var.create_aws_route53_zone || var.aws_route53_zone_id == ""
+    error_message = "aws_route53_zone_id must be empty when create_aws_route53_zone = true — the zone will be created by this module."
+  }
+  validation {
+    condition     = var.create_aws_route53_zone || var.aws_route53_zone_id != ""
+    error_message = "aws_route53_zone_id is required when create_aws_route53_zone = false (adopt mode)."
+  }
+}
