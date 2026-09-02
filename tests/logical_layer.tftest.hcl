@@ -21,8 +21,8 @@ variables {
 
   txt_records = {
     "@" = [
-      "v=spf1 include:_spf.google.com ~all",
-      "google-site-verification=abc123",
+      "v=spf1 include:spf.example.net ~all",
+      "site-verification=elvispresleyfan",
     ]
   }
 
@@ -38,8 +38,8 @@ variables {
 
   mx_records = {
     "@" = [
-      { priority = 10, value = "mx1.forward-email.net" },
-      { priority = 20, value = "mx2.forward-email.net" },
+      { priority = 10, value = "mx1.mail-provider.net" },
+      { priority = 20, value = "mx2.mail-provider.net" },
     ]
   }
 }
@@ -203,8 +203,8 @@ run "mx_logical_keeps_priority_separate" {
     dns_providers = ["dnsimple", "digitalocean"]
     mx_records = {
       "@" = [
-        { priority = 10, value = "mx1.alias.proton.me" },
-        { priority = 20, value = "mx2.alias.proton.me" },
+        { priority = 10, value = "mx1.mail-provider.net" },
+        { priority = 20, value = "mx2.mail-provider.net" },
       ]
     }
   }
@@ -227,8 +227,8 @@ run "mx_aws_embeds_priority_in_wire_values" {
     dns_providers = ["aws"]
     mx_records = {
       "@" = [
-        { priority = 10, value = "mx1.alias.proton.me" },
-        { priority = 20, value = "mx2.alias.proton.me" },
+        { priority = 10, value = "mx1.mail-provider.net" },
+        { priority = 20, value = "mx2.mail-provider.net" },
       ]
     }
   }
@@ -239,7 +239,7 @@ run "mx_aws_embeds_priority_in_wire_values" {
   }
 
   assert {
-    condition     = contains(local.mx_map_aws["@"].values, "10 mx1.alias.proton.me") && contains(local.mx_map_aws["@"].values, "20 mx2.alias.proton.me")
+    condition     = contains(local.mx_map_aws["@"].values, "10 mx1.mail-provider.net") && contains(local.mx_map_aws["@"].values, "20 mx2.mail-provider.net")
     error_message = "AWS MX values must be '<priority> <target>' wire-format strings"
   }
 }
