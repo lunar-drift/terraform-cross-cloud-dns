@@ -64,17 +64,17 @@ variable "default_ttl" {
 }
 
 variable "create_aws_route53_zone" {
-  type = bool
+  type    = bool
   default = false
 }
 
 variable "create_digitalocean_domain" {
-  type = bool
+  type    = bool
   default = false
 }
 
 variable "create_dnsimple_domain" {
-  type = bool
+  type    = bool
   default = false
 }
 
