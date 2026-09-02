@@ -16,13 +16,13 @@ module "ld_dns" {
     "dkim02._domainkey" = "dkim02._domainkey.alias.proton.me"
     "dkim03._domainkey" = "dkim03._domainkey.alias.proton.me"
   }
-  # TODO implement MX records
-  # mx_records = {
-  #   "@" = [
-  #     "10 mx1.alias.proton.me",
-  #     "20 mx2.alias.proton.me"
-  #   ]
-  # }
+
+  mx_records = {
+    "@" = [
+      { priority = 10, value = "mx1.forward-email.net" },
+      { priority = 20, value = "mx2.forward-email.net" },
+    ]
+  }
 }
 
 
