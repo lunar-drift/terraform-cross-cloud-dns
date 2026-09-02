@@ -68,7 +68,11 @@ terraform import 'module.x_dns.dnsimple_zone_record.txt["@_hash"]' 12345678
 
 Adding a new provider = one `required_providers` entry + renderer blocks per record
 type. The logical layer (`*_logical`, `*_map`) is shared and provider-agnostic. More providers will be supported if demand appears.
-
+## Variables  
+- `create_dnsimple_domain` / `create_digitalocean_domain`: when `false`, the domain
+  must already exist at the provider under `var.domain_name` (records bind by name).
+  The flags exist solely to control zone *creation*; AWS additionally requires
+  `aws_route53_zone_id` in adopt mode because Route53 records reference zones by ID.
 ## Outputs 
 - `dns_records` — provider-neutral JSON inventory of records. Accessible via `terraform output -json dns_records`. Useful
   for migration audits (e.g., verifying records exist in both clouds before decommissioning one) and downstream tooling. More details to come here.
