@@ -1,6 +1,6 @@
 module "ld_dns" {
-  source = "../"
-  domain_name = "webdatabasesolutions.com"
+  source        = "../"
+  domain_name   = "webdatabasesolutions.com"
   dns_providers = ["aws", "dnsimple"]
   default_ttl   = 60
 

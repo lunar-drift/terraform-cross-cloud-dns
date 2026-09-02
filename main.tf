@@ -93,7 +93,7 @@ resource "dnsimple_zone_record" "mx" {
   zone_name = var.domain_name
   type      = "MX"
   name      = each.value.name == "@" ? "" : each.value.name
-  value     = each.value.target   # FQDN required here, even though DNSimple API is lenient.
+  value     = each.value.target # FQDN required here, even though DNSimple API is lenient.
   priority  = each.value.priority
   ttl       = each.value.ttl
 }
