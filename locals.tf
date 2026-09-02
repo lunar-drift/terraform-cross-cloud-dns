@@ -6,6 +6,12 @@ locals {
   deploy_digitalocean = contains(var.dns_providers, "digitalocean")
   deploy_dnsimple     = contains(var.dns_providers, "dnsimple")
 
+  # Ensure zones/domains are in place before attempting to create records
+  # one() over splat avoids [0]-index error when the other branch's count = 0
+  aws_zone_id         = var.create_aws_route53_zone ? one(aws_route53_zone.main[*].zone_id) : one(data.aws_route53_zone.existing[*].zone_id)
+  digitalocean_domain = var.create_digitalocean_domain ? one(digitalocean_domain.main[*].name) : one(data.digitalocean_domain.existing[*].name)
+  dnsimple_zone_name  = one(data.dnsimple_zone.existing[*].name)
+
   # -- A records --
   a_logical = flatten([
     for name, ips in var.a_records : [
@@ -80,4 +86,47 @@ locals {
       ttl    = recs[0].ttl
     }
   }
+
+  # Provider-neutral grouped record inventory, keyed type -> name.
+  # Values are raw strings exactly as the user supplied them; "@" denotes apex.
+  # Used for output.dns_records
+  records_by_type = {
+    TXT = {
+      for name, recs in { for r in local.txt_logical : r.name => r... } :
+      name => {
+        values = [for rec in recs : rec.value]
+        ttl    = recs[0].ttl
+      }
+    }
+    A = {
+      for name, recs in { for r in local.a_logical : r.name => r... } :
+      name => {
+        values = [for rec in recs : rec.value]
+        ttl    = recs[0].ttl
+      }
+    }
+    CNAME = {
+      for name, r in local.cname_map :
+      name => {
+        values = [r.target]
+        ttl    = r.ttl
+      }
+    }
+    MX = {
+      for name, recs in { for r in local.mx_logical : r.name => r... } :
+      name => {
+        values = [for rec in recs : "${rec.priority} ${rec.target}"]
+        ttl    = recs[0].ttl
+      }
+    }
+  }
+
+  # Which providers these records are (or were intended to be) deployed to
+  providers_in_use = [
+    for p, enabled in {
+      aws          = local.deploy_aws
+      dnsimple     = local.deploy_dnsimple
+      digitalocean = local.deploy_digitalocean
+    } : p if enabled
+  ]
 }

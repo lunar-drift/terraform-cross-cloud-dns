@@ -28,15 +28,6 @@ data "dnsimple_zone" "existing" {
   name  = var.domain_name
 }
 
-locals {
-  # Ensure zones/domains are in place before attempting to create records
-  # one() over splat avoids [0]-index error when the other branch's count = 0
-  aws_zone_id         = var.create_aws_route53_zone ? one(aws_route53_zone.main[*].zone_id) : one(data.aws_route53_zone.existing[*].zone_id)
-  digitalocean_domain = var.create_digitalocean_domain ? one(digitalocean_domain.main[*].name) : one(data.digitalocean_domain.existing[*].name)
-  dnsimple_zone_name  = one(data.dnsimple_zone.existing[*].name)
-}
-
-
 # ===============================================================
 #                         A RECORDS
 # ===============================================================
