@@ -1,9 +1,10 @@
 module "ld_dns" {
   source        = "../"
   domain_name   = "webdatabasesolutions.com"
-  dns_providers = ["aws", "dnsimple"]
+  dns_providers = ["aws", "dnsimple", "digitalocean"]
   create_aws_route53_zone = true
   create_dnsimple_domain = true
+  create_digitalocean_domain = true
 
   default_ttl   = 60
 
