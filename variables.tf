@@ -28,7 +28,10 @@ variable "cname_records" {
     condition     = !contains([for k, v in var.cname_records : k], "@")
     error_message = "CNAME records cannot exist at the zone apex (@) — use A/ALIAS records there."
   }
-  # cname_records = { "www" = "example.com", "blog" = "cname.vercel-dns.com" }
+  validation {
+    condition = alltrue([for v in values(var.cname_records) : strcontains(v, ".")])
+    error_message = "CNAME targets must be fully-qualified domain names (e.g. \"svc.example.com\"), not bare labels."
+  }
 }
 
 variable "txt_records" {

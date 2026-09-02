@@ -32,7 +32,7 @@ locals {
     for name, target in var.cname_records :
     name => {
       name   = name
-      target = strcontains(target, ".") ? target : "${target}.${var.domain_name}" # allows for shorthand for referencing local domain name.
+      target = target
       ttl    = lookup(var.per_subdomain_ttl, name, var.default_ttl)
     }
   }
@@ -44,7 +44,7 @@ locals {
         key      = "${name}_${mx.priority}_${md5(mx.value)}"
         name     = name
         priority = mx.priority
-        target   = strcontains(mx.value, ".") ? mx.value : "${mx.value}.${var.domain_name}"
+        target   = mx.value
         ttl      = lookup(var.per_subdomain_ttl, name, var.default_ttl)
       }
     ]

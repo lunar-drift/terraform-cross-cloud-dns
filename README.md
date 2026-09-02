@@ -51,18 +51,20 @@ terraform plan -target='module.x_dns.aws_route53_record.txt["@"]'
 terraform import 'module.x_dns.dnsimple_zone_record.txt["@_hash"]' 12345678
 ```
 
-## Other Items
-- shorthand in targets allowed for CNAME and MX records: "blog" means "blog.<domain>", "other.tld" stays as-is
-- No CNAME records allowed at apex, e.g. example.com, this would require an alias record at a supported provider. (AWS, DNSimple)
+## Supported Record Types
+### A Records
 - Multi-IP A records are DNS round-robin: load *distribution*, not failover. That means no health checking or other advanced features.
 
+### CNAME Records
+- No CNAME records allowed at apex, e.g. example.com, this would require an alias record at a supported provider. (AWS, DNSimple)
+
 ## Provider variations
-| Concern                | AWS Route53                              | DNSimple               | DigitalOcean           |
-|------------------------|------------------------------------------|------------------------|------------------------|
-| Apex (`@`) as name     | full zone FQDN                           | empty string `""`      | literal `"@"`          |
-| Multi-value at name    | one record set, `values` list            | one resource per value | one resource per value |
-| CNAME target format    | FQDN required                            | lenient                | lenient                |
-| Record-set cardinality | max 1 per (name, type), simple routing   | many per name          | many per name          |
+| Concern                | AWS Route53                              | DNSimple               | DigitalOcean           | This Module                 |
+|------------------------|------------------------------------------|------------------------|------------------------|-----------------------------|
+| Apex (`@`) as name     | full zone FQDN                           | empty string `""`      | literal `"@"`          | Only Accepts `@`            |
+| CNAME target format    | FQDN required                            | lenient                | lenient                | FQDN Required               |
+| Multi-value at name    | one record set, `values` list            | one resource per value | one resource per value | Multi-Value per name in var |
+| Record-set cardinality | max 1 per (name, type), simple routing   | many per name          | many per name          | Multi-Value per name in var |
 
 Adding a new provider = one `required_providers` entry + renderer blocks per record
 type. The logical layer (`*_logical`, `*_map`) is shared and provider-agnostic. More providers will be supported if demand appears.

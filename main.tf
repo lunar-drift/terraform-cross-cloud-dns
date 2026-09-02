@@ -58,7 +58,7 @@ resource "dnsimple_zone_record" "cname" {
   zone_name = var.domain_name
   type      = "CNAME"
   name      = each.value.name   # CNAME records not allowed at `@`
-  value     = each.value.target # FQDN required here, normalized in cname_map
+  value     = each.value.target # FQDN required here, even though DNSimple API is lenient.
   ttl       = each.value.ttl
 }
 
@@ -82,8 +82,8 @@ resource "aws_route53_record" "mx" {
 #   domain = var.domain_name
 #   type   = "MX"
 #   name   = each.value.name
-#   priority = each.value.priority        # note: DO exposes priority as a separate attribute
-#   value  = each.value.target            # and value WITHOUT the priority prefix
+#   priority = each.value.priority
+#   value  = each.value.target      # FQDN required here, even though DNSimple API is lenient.
 #   ttl    = each.value.ttl
 # }
 
@@ -93,7 +93,7 @@ resource "dnsimple_zone_record" "mx" {
   zone_name = var.domain_name
   type      = "MX"
   name      = each.value.name == "@" ? "" : each.value.name
-  value     = each.value.target
+  value     = each.value.target   # FQDN required here, even though DNSimple API is lenient.
   priority  = each.value.priority
   ttl       = each.value.ttl
 }
