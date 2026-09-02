@@ -15,11 +15,15 @@ terraform {
   }
 }
 
+variable "aws_assume_role_arn" {
+  type = string
+}
+
 provider "aws" {
   region = "us-east-1"
 
   assume_role {
-    role_arn     = "arn:aws:iam::552162429610:role/LDAdminAccess"
+    role_arn     = var.aws_assume_role_arn
     session_name = "TerraformSession"
   }
 }
