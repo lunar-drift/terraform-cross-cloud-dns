@@ -1,29 +1,26 @@
 # terraform-cross-cloud-dns
 
-## Notes on locals
-- **Why two maps instead of one?** Each provider's API natively models multi-value 
-records differently: Route53 requires one record *set* per (name, type) — two
-same-name record sets fail at apply time with `InvalidChangeBatch` even though the
-plan succeeds. DNSimple/DO model each value as an independent record resource.
-The two maps are wire-identical in DNS terms — a resolver querying either gets
-the same RRs. (WRITTEN BY LUMO)
-- See more in [design.md](docs/design.md)
-## Notes on record key naming (WRITTEN BY LUMO)
-- Every logical record gets a composite key: `${name}_${md5(value)}`
-- **Why not just `name`?** A subdomain can legitimately have multiple records of the
-  same type at the same name (multiple TXT values at `@`, round-robin A records).
-  `for_each` requires unique keys, so the value must participate in the identity.
+## Managed DNS Records: Resource Record Set Model vs Individual Resource Record Model 
+For example, two different TXT records at the apex, `@` for two different domain validations are needed. 
+In the RR model, two resource blocks are needed, while in the RR Set model, only one resource is required.
+In both cases, the DNS response a resolver receives will be identical, only the provider API differs.
+If more than two records at the same subdomain or at the apex are needed, that many resources will need to be created
+in the RR model, but only one is needed in the RR set model. 
+- RR model: DNSimple, Digital Ocean 
+- RR set model: AWS Route 53
+### Implementation of this difference in providers within this module
+- The key in RR set modeled providers are simply `name` with name being `"@"` in the case of the apex or `"www"` or other subdomain.
+- Every record in the RR model gets a composite key: `${name}_${md5(value)}`
 - **Why `md5(value)`?** It's deterministic (stable across runs, machines, and CI),
-  produces collision-safe uniqueness, and keeps keys readable enough to eyeball in
+  produces collision-safe uniqueness, and keys are readable enough to eyeball in
   `terraform state list`.
 - **Why this matters:** `for_each` instance addresses are derived from map keys.
   A key that changes means Terraform treats it as a different resource (destroy +
   create, not in-place update). Since md5 changes *only* when the record value
   changes, edits cost exactly one destroy/create per value on fan-out providers —
   never collateral churn on unrelated records.
-- **Corollary:** never change the key scheme casually. Re-keying forces a batch of
-  `terraform state mv` operations (or mass destroy/recreate). The key scheme is part
-  of the module's state contract, not an implementation detail.
+- The key names will not be changed in this module as it is a pain to rekey state files. 
+- See more in [design.md](docs/design.md) on how this difference is handled by this module.
 
 ## Notes on Terraform Record Addresses 
 - when referencing one of the records, especially those with `@`, use single quotes to wrap the entire resource name and double quotes within to wrap the key.
@@ -54,9 +51,8 @@ terraform plan -target='module.x_dns.aws_route53_record.txt["@"]'
 terraform import 'module.x_dns.dnsimple_zone_record.txt["@_hash"]' 12345678
 ```
 
-
-## Notes on CNAME/A Records
-- shorthand in targets allowed: "blog" means "blog.<domain>", "other.tld" stays as-is
+## Other Items
+- shorthand in targets allowed for CNAME and MX records: "blog" means "blog.<domain>", "other.tld" stays as-is
 - No CNAME records allowed at apex, e.g. example.com, this would require an alias record at a supported provider. (AWS, DNSimple)
 - Multi-IP A records are DNS round-robin: load *distribution*, not failover. That means no health checking or other advanced features.
 
@@ -69,8 +65,8 @@ terraform import 'module.x_dns.dnsimple_zone_record.txt["@_hash"]' 12345678
 | Record-set cardinality | max 1 per (name, type), simple routing   | many per name          | many per name          |
 
 Adding a new provider = one `required_providers` entry + renderer blocks per record
-type. The logical layer (`*_logical`, `*_map`) is shared and provider-agnostic. More providers will be supported if demaind appears.
+type. The logical layer (`*_logical`, `*_map`) is shared and provider-agnostic. More providers will be supported if demand appears.
 
 ## Outputs 
 - `dns_records` — provider-neutral JSON inventory of records. Accessible via `terraform output -json dns_records`. Useful
-  for migration audits (e.g., verifying records exist in both clouds before decommissioning one) and downstream tooling. More details to come here. 
+  for migration audits (e.g., verifying records exist in both clouds before decommissioning one) and downstream tooling. More details to come here.
