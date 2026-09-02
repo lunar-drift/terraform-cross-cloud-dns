@@ -33,6 +33,16 @@ resource "aws_route53_record" "a" {
   records = each.value.values # round-robin: one record set, N IPs
 }
 
+resource "digitalocean_record" "a" {
+  for_each = local.deploy_digitalocean ? local.a_map : {}
+
+  domain = local.digitalocean_domain
+  type   = "A"
+  name   = each.value.name
+  value  = each.value.value
+  ttl    = each.value.ttl
+}
+
 resource "dnsimple_zone_record" "a" {
   for_each = local.deploy_dnsimple ? local.a_map : {}
 
@@ -51,10 +61,20 @@ resource "aws_route53_record" "cname" {
   for_each = local.deploy_aws ? local.cname_map : {}
 
   zone_id = local.aws_zone_id
-  name    = "${each.value.name}.${var.domain_name}" # CNAME records not allowed at `@`
+  name    = "${each.value.name}.${var.domain_name}" # FQDN required for name in AWS API
   type    = "CNAME"
   ttl     = each.value.ttl
   records = [each.value.target]
+}
+
+resource "digitalocean_record" "cname" {
+  for_each = local.deploy_digitalocean ? local.cname_map : {}
+
+  domain = local.digitalocean_domain
+  type   = "CNAME"
+  name   = each.value.name
+  value  = "${each.value.target}." # FQDN with trailing dot
+  ttl    = each.value.ttl
 }
 
 resource "dnsimple_zone_record" "cname" {
@@ -62,7 +82,7 @@ resource "dnsimple_zone_record" "cname" {
 
   zone_name = local.dnsimple_zone_name
   type      = "CNAME"
-  name      = each.value.name   # CNAME records not allowed at `@`
+  name      = each.value.name
   value     = each.value.target # FQDN required here, even though DNSimple API is lenient.
   ttl       = each.value.ttl
 }
@@ -81,16 +101,16 @@ resource "aws_route53_record" "mx" {
   records = each.value.values
 }
 
-# resource "digitalocean_record" "mx" {
-#   for_each = local.deploy_digitalocean ? local.mx_map : {}
-#
-#   domain = local.digitalocean_domain
-#   type   = "MX"
-#   name   = each.value.name
-#   priority = each.value.priority
-#   value  = each.value.target      # FQDN required here, even though DNSimple API is lenient.
-#   ttl    = each.value.ttl
-# }
+resource "digitalocean_record" "mx" {
+  for_each = local.deploy_digitalocean ? local.mx_map : {}
+
+  domain   = local.digitalocean_domain
+  type     = "MX"
+  name     = each.value.name
+  priority = each.value.priority
+  value    = each.value.target # FQDN required here, even though this API is lenient.
+  ttl      = each.value.ttl
+}
 
 resource "dnsimple_zone_record" "mx" {
   for_each = local.deploy_dnsimple ? local.mx_map : {}
@@ -115,6 +135,16 @@ resource "aws_route53_record" "txt" {
   type    = "TXT"
   ttl     = each.value.ttl
   records = each.value.values
+}
+
+resource "digitalocean_record" "txt" {
+  for_each = local.deploy_digitalocean ? local.txt_map : {}
+
+  domain = local.digitalocean_domain
+  type   = "TXT"
+  name   = each.value.name # "@" passes through natively
+  value  = each.value.value
+  ttl    = each.value.ttl
 }
 
 resource "dnsimple_zone_record" "txt" {
