@@ -69,11 +69,27 @@ terraform import 'module.x_dns.dnsimple_zone_record.txt["@_hash"]' 12345678
 
 Adding a new provider = one `required_providers` entry + renderer blocks per record
 type. The logical layer (`*_logical`, `*_map`) is shared and provider-agnostic. More providers will be supported if demand appears.
-## Variables  
-- `create_dnsimple_domain` / `create_digitalocean_domain`: when `false`, the domain
-  must already exist at the provider under `var.domain_name` (records bind by name).
-  The flags exist solely to control zone *creation*; AWS additionally requires
-  `aws_route53_zone_id` in adopt mode because Route53 records reference zones by ID.
+## Zones/Domains vs Registration
+In the DNSimple Terraform Provider, there is no distinction between a "zone" 
+and the registration of a domain name. Per their docs, this is not always 
+going to be the behavior, but until then, this module does not create DNSimple zones,
+**your domain must already exist in your DNSimple account**.
+AWS and Digital Ocean have a DNS construct independent of registration, generally called a zone 
+which is why they are able to be created and destroyed by this module.
+
+Because every record depends on a zone existing first, the module uses a data
+lookup per provider to verify zone existence at plan time (fail-fast) whenever it
+isn't creating the zone itself:
+- `create_aws_route53_zone = true` — module creates the Route53 hosted zone;
+  `false` (default) — zone must already exist in your AWS account.
+- `create_digitalocean_domain = true` — module creates the DO domain;
+  `false` (default) — domain must already exist in your DO account.
+- DNSimple — no create flag exists; the zone is always looked up and must exist.
+
+In verify mode, a missing zone/domain fails at `terraform plan` with a data-source
+error naming the domain — not mid-apply with record creation errors.
+
+> Note: because verification happens during plan/refresh, terraform plan requires provider credentials for every enabled provider, even before any apply.
 ## Outputs 
 - `dns_records` — provider-neutral JSON inventory of records. Accessible via `terraform output -json dns_records`. Useful
   for migration audits (e.g., verifying records exist in both clouds before decommissioning one) and downstream tooling. More details to come here.

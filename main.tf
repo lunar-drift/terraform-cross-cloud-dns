@@ -8,16 +8,41 @@ resource "aws_route53_zone" "main" {
   name  = var.domain_name
 }
 
-resource "dnsimple_domain" "main" {
-  count          = local.deploy_dnsimple && var.create_dnsimple_domain ? 1 : 0
-  name           = var.domain_name
-  prevent_delete = true
+data "aws_route53_zone" "existing" {
+  count = local.deploy_aws && !var.create_aws_route53_zone ? 1 : 0
+  name  = var.domain_name
+  lifecycle {
+    # There has been some documented inconsistencies in finding matches with hosted zones
+    postcondition {
+      condition = self.name == "${var.domain_name}."
+      error_message = "Route53 zone '${var.domain_name}' was not found exactly. Set create_aws_route53_zone = true if the zone should be created, or verify the domain_name value."
+    }
+  }
 }
 
 resource "digitalocean_domain" "main" {
   count = local.deploy_digitalocean && var.create_digitalocean_domain ? 1 : 0
   name  = var.domain_name
 }
+
+data "digitalocean_domain" "existing" {
+  count = local.deploy_digitalocean && !var.create_digitalocean_domain ? 1 : 0
+  name  = var.domain_name
+}
+
+data "dnsimple_zone" "existing" {
+  count = local.deploy_dnsimple ? 1 : 0
+  name  = var.domain_name
+}
+
+locals {
+  # Ensure zones/domains are in place before attempting to create records
+  # one() over splat avoids [0]-index error when the other branch's count = 0
+  aws_zone_id         = var.create_aws_route53_zone ? one(aws_route53_zone.main[*].zone_id) : one(data.aws_route53_zone.existing[*].zone_id)
+  digitalocean_domain = var.create_digitalocean_domain ? one(digitalocean_domain.main[*].name) : one(data.digitalocean_domain.existing[*].name)
+  dnsimple_zone_name  = one(data.dnsimple_zone.existing[*].name)
+}
+
 
 # ===============================================================
 #                         A RECORDS
