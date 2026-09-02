@@ -62,3 +62,18 @@ variable "default_ttl" {
   type    = number
   default = 3600
 }
+
+variable "create_aws_route53_zone" {
+  type = bool
+  default = false
+}
+
+variable "create_digitalocean_domain" {
+  type = bool
+  default = false
+}
+
+variable "create_dnsimple_domain" {
+  type = bool
+  default = false
+}

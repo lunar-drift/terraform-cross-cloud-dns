@@ -1,17 +1,22 @@
 # --- terraform-cross-cloud-dns.main ---
 
 # ===============================================================
-#                         0. ZONES
+#                          ZONES
 # ===============================================================
 resource "aws_route53_zone" "main" {
-  count = local.deploy_aws ? 1 : 0
+  count = local.deploy_aws && var.create_aws_route53_zone ? 1 : 0
   name  = var.domain_name
 }
 
 resource "dnsimple_domain" "zone" {
-  count          = local.deploy_dnsimple ? 1 : 0
+  count          = local.deploy_dnsimple && var.create_dnsimple_domain ? 1 : 0
   name           = var.domain_name
   prevent_delete = true
+}
+
+resource "digitalocean_domain" "main" {
+  count = local.deploy_digitalocean && var.create_digitalocean_domain ? 1 : 0
+  name  = var.domain_name
 }
 
 # ===============================================================
