@@ -24,6 +24,13 @@ locals {
         ttl    = r.ttl
       }
     }
+    MX = {
+      for name, recs in { for r in local.mx_logical : r.name => r... } :
+      name => {
+        values = [for rec in recs : "${rec.priority} ${rec.target}"]
+        ttl    = recs[0].ttl
+      }
+    }
   }
 
   # Which providers these records are (or were intended to be) deployed to

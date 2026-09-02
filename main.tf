@@ -78,3 +78,38 @@ resource "dnsimple_zone_record" "cname" {
   value     = each.value.target # FQDN required here, normalized in cname_map
   ttl       = each.value.ttl
 }
+
+# ===============================================================
+#                         4. MX RECORDS
+# ===============================================================
+
+resource "aws_route53_record" "mx" {
+  for_each = local.deploy_aws ? local.mx_map_aws : {}
+
+  zone_id = aws_route53_zone.main[0].zone_id
+  name    = each.value.name == "@" ? var.domain_name : "${each.value.name}.${var.domain_name}"
+  type    = "MX"
+  ttl     = each.value.ttl
+  records = each.value.values
+}
+
+resource "dnsimple_zone_record" "mx" {
+  for_each = local.deploy_dnsimple ? local.mx_map : {}
+
+  zone_name = var.domain_name
+  type      = "MX"
+  name      = each.value.name == "@" ? "" : each.value.name
+  value     = "${each.value.priority} ${each.value.target}"
+  ttl       = each.value.ttl
+}
+
+# resource "digitalocean_record" "mx" {
+#   for_each = local.deploy_digitalocean ? local.mx_map : {}
+#
+#   domain = var.domain_name
+#   type   = "MX"
+#   name   = each.value.name
+#   priority = each.value.priority        # note: DO exposes priority as a separate attribute
+#   value  = each.value.target            # and value WITHOUT the priority prefix
+#   ttl    = each.value.ttl
+# }

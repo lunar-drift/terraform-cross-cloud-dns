@@ -46,13 +46,13 @@ variable "txt_records" {
 
 variable "mx_records" {
   type        = map(list(object({ priority = number, value = string })))
-  description = "Define MX records..."
+  description = "Define MX records: name -> list of mail exchangers. USe '@' for apex"
   default     = {}
   # Example:
   # mx_records = {
   #   "@" = [
-  #     { priority = 10, value = "mx1.alias.proton.me" },
-  #     { priority = 20, value = "mx2.alias.proton.me"},
+  #     { priority = 10, value = "mx1.forward-email.net" },
+  #     { priority = 20, value = "mx2.forward-email.net"},
   #   ]
   # }
 }

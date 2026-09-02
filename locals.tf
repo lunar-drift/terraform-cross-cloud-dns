@@ -57,6 +57,31 @@ locals {
       ttl    = lookup(var.per_subdomain_ttl, name, var.default_ttl)
     }
   }
+  # -- MX RECORDS: ---
+  mx_logical = flatten([
+    for name, entries in var.mx_records : [
+      for mx in entries : {
+        key      = "${name}_${mx.priority}_${md5(mx.value)}"
+        name     = name
+        priority = mx.priority
+        target   = strcontains(mx.value, ".") ? mx.value : "${mx.value}.${var.domain_name}"
+        ttl      = lookup(var.per_subdomain_ttl, name, var.default_ttl)
+      }
+    ]
+  ])
+
+  # Fan-out map (dnsimple / digitalocean): one resource per MX entry
+  mx_map = { for r in local.mx_logical : r.key => r }
+
+  # Grouped map (aws): one record set per name, priority embedded in each value
+  mx_map_aws = {
+    for name, recs in { for r in local.mx_logical : r.name => r... } :
+    name => {
+      name   = name
+      values = [for rec in recs : "${rec.priority} ${rec.target}"]
+      ttl    = recs[0].ttl
+    }
+  }
 
 
 }
